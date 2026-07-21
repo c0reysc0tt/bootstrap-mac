@@ -27,6 +27,8 @@ If you cloned a config repo with a `setup.zsh`, the bootstrap will offer to run 
 ~/.config/setup.zsh
 ```
 
+Need a starting point? Fork [config-example](https://github.com/c0reysc0tt/config-example) and customize it.
+
 ## Requirements
 
 - macOS (Apple Silicon or Intel)
