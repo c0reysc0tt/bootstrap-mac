@@ -65,15 +65,11 @@ brew install gh fzf 2>/dev/null || true
 # ====================
 
 echo ""
-if ls ~/.ssh/keys/* &>/dev/null || ls ~/.ssh/id_* &>/dev/null; then
-  echo "==> SSH key already present — skipping."
+read "?==> Generate an SSH key for GitHub? [Y/n] " ssh_reply
+if [[ "$ssh_reply" =~ ^[Nn]$ ]]; then
+  echo "    Skipping SSH setup."
   uploaded_key=false
 else
-  read "?==> No SSH key found. Generate one for GitHub? [Y/n] " ssh_reply
-  if [[ "$ssh_reply" =~ ^[Nn]$ ]]; then
-    echo "    Skipping SSH setup."
-    uploaded_key=false
-  else
     DEFAULT_KEY_DIR="$HOME/.ssh/keys"
     DEFAULT_KEY_NAME="github"
 
@@ -124,7 +120,6 @@ SSHEOF
     gh ssh-key add "${KEY_PATH}.pub" --title "$(hostname -s) $(date +%Y-%m-%d)"
     echo "    SSH key uploaded."
     uploaded_key=true
-  fi
 fi
 
 # ====================
