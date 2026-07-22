@@ -37,4 +37,4 @@ Need a starting point? Fork [config-example](https://github.com/c0reysc0tt/confi
 
 ## License
 
-MIT
+[MIT](LICENSE)
