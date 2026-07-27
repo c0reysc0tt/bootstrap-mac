@@ -1,40 +1,20 @@
 # bootstrap-mac
 
-One-liner to prep a fresh Mac for dotfiles setup. Installs the prerequisites, configures SSH and git, and optionally clones your config repo.
+Prep a fresh Mac for your dotfiles setup.
 
 ## Usage
 
+Run the following one-liner to download and launch the bootstrap installer using local file arguments (which keeps standard input open for prompts):
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/c0reysc0tt/bootstrap-mac/main/bootstrap.sh | zsh
+curl -fsSL https://githubusercontent.com -o bootstrap.sh && zsh bootstrap.sh
 ```
 
 ## What it does
 
-1. **Xcode Command Line Tools** — installs if not present (provides `git`, compilers)
-2. **Homebrew** — installs if not present
-3. **gh + fzf** — GitHub CLI (for SSH key upload) and fuzzy finder
-4. **SSH key** — generates an ed25519 keypair, configures `~/.ssh/config`, uploads the public key to GitHub via `gh`
-5. **Git identity** — prompts for global `user.name` and `user.email`
-6. **Config repo** — prompts for a repo URL, clones to `~/.config`, and offers to run `setup.zsh` if one exists
-
-Every step is interactive and skippable. Nothing runs without a prompt.
-
-## After bootstrap
-
-If you cloned a config repo with a `setup.zsh`, the bootstrap will offer to run it. Otherwise:
-
-```bash
-~/.config/setup.zsh
-```
-
-Need a starting point? Fork [config-example](https://github.com/c0reysc0tt/config-example) and customize it.
-
-## Requirements
-
-- macOS (Apple Silicon or Intel)
-- Internet connection
-- A GitHub account (for SSH key upload)
-
-## License
-
-[MIT](LICENSE)
+1. **Xcode Command Line Tools:** Installs required developer toolkits (provides native `git`).
+2. **Homebrew:** Configures the Mac package manager silently.
+3. **Core Utilites:** Sets up GitHub CLI (`gh`) and `fzf`.
+4. **SSH Authentication:** Confirms/creates a dedicated GitHub identity file and binds it cleanly to your GitHub profile via the web flow.
+5. **Git Configurations:** Sets global identity parameters.
+6. **Dotfiles Repository:** Offers to sync down your custom `~/.config` workspace directly.
