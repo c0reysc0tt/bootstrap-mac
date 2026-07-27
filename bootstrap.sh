@@ -2,13 +2,13 @@
 # bootstrap.sh — Prep a fresh Mac for dotfiles setup.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/c0reysc0tt/bootstrap-mac/main/bootstrap.sh | zsh
+#   curl -fsSL https://githubusercontent.com -o bootstrap.sh && zsh bootstrap.sh
 #
 # What it does:
 #   1. Installs Xcode Command Line Tools (provides git)
-#   2. Installs Homebrew
+#   2. Installs Homebrew (Non-interactively using pre-authed sudo)
 #   3. Installs gh (GitHub CLI) and fzf
-#   4. Generates an SSH key and uploads it to GitHub (optional)
+#   4. Generates an SSH key and uploads it via gh web flow (Fixes duplicate key bug)
 #   5. Configures global git identity (optional)
 #   6. Clones a dotfiles/config repo (optional)
 
@@ -19,6 +19,11 @@ echo "╔═══════════════════════�
 echo "║        macOS Bootstrap for Dotfiles          ║"
 echo "╚══════════════════════════════════════════════╝"
 echo ""
+
+# Ask for sudo upfront to allow a clean non-interactive Homebrew installation later
+echo "==> Authenticating sudo..."
+sudo -v
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 # ====================
 # 1. Xcode CLT
@@ -44,7 +49,7 @@ if command -v brew &>/dev/null; then
   echo "==> Homebrew already installed."
 else
   echo "==> Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://githubusercontent.com)"
 fi
 
 if [[ -f /opt/homebrew/bin/brew ]]; then
@@ -90,35 +95,24 @@ else
 
     # SSH config
     if [[ ! -f ~/.ssh/config ]]; then
-      cat > ~/.ssh/config <<SSHEOF
-Host github.com
-    IdentityFile $KEY_PATH
-
-Host *
-    AddKeysToAgent yes
-    UseKeychain yes
-    IdentitiesOnly yes
-SSHEOF
-      chmod 600 ~/.ssh/config
-      echo "    Created ~/.ssh/config."
-    elif ! grep -qE '^Host[[:space:]]+github\.com([[:space:]]|$)' ~/.ssh/config; then
-      tmp="$(mktemp)"
-      printf 'Host github.com\n    IdentityFile %s\n\n' "$KEY_PATH" > "$tmp"
+      cat > ~/.ssh/config  "$tmp"
       cat ~/.ssh/config >> "$tmp"
       mv "$tmp" ~/.ssh/config
       chmod 600 ~/.ssh/config
       echo "    Prepended github.com block to ~/.ssh/config."
     fi
 
-    # Upload to GitHub
+    # Upload to GitHub via safe Web Flow authentication
     echo ""
-    echo "==> Uploading SSH key to GitHub..."
-    echo "    (You'll be prompted to authenticate if not already logged in)"
+    echo "==> Authenticating with GitHub..."
     if ! gh auth status &>/dev/null; then
-      gh auth login -p ssh -h github.com
+      gh auth login -h github.com -w
     fi
+
+    echo "==> Uploading custom SSH key to GitHub..."
     gh ssh-key add "${KEY_PATH}.pub" --title "$(hostname -s) $(date +%Y-%m-%d)"
-    echo "    SSH key uploaded."
+    gh config set git_protocol ssh
+    echo "    SSH key uploaded and gh configured."
     uploaded_key=true
 fi
 
